@@ -165,8 +165,8 @@ for (strategy in strategy_comparison) {
   saveRDS(dat_set, paste0(strategy, "_dat_set.rds"))
   start_time <- Sys.time()
   result_inner <- test_two_items(dat_set,
-                                 iteration_number = 10,
-                                 seed_number = 2893,
+                                 iteration_number = 200,
+                                 seed_number = 875,
                                  eps_0 = 0,
                                  eps_1 = 0.25,
                                  eps_2 = 0.5,
