@@ -25,7 +25,7 @@ library(readxl)
 
 source("R/constraints_r1_r2.R") # contains the functions compute_constraints...
 source("R/sample_permutation_test.R") # permutation test, sample etc
-source("R/plotting_permutationtest_openml.R") # plot function
+source("R/plotting_permutationtest.R") # plot function
 source("R/test_two_items.R") # main function summarizing the computation
 
 ################################################################################
@@ -165,7 +165,7 @@ for (strategy in strategy_comparison) {
   saveRDS(dat_set, paste0(strategy, "_dat_set.rds"))
   start_time <- Sys.time()
   result_inner <- test_two_items(dat_set,
-                                 iteration_number = 200,
+                                 iteration_number = 1000,
                                  seed_number = 875,
                                  eps_0 = 0,
                                  eps_1 = 0.25,
@@ -187,7 +187,7 @@ for (strategy in strategy_comparison) {
 all_eps_values <- c("result_eps_0", "result_eps_1", "result_eps_2",
                     "result_eps_3", "result_eps_4")
 
-proportion_below_df <- as.data.frame(matrix(rep(0, 6 * 5), nrow = 5, ncol = 6),
+proportion_below_df <- as.data.frame(matrix(rep(0, 5 * 5), nrow = 5, ncol = 5),
                                      row.names = all_eps_values)
 colnames(proportion_below_df) <- unlist(strategy_comparison)
 for (strategy in strategy_comparison) {
@@ -210,13 +210,19 @@ saveRDS(proportion_below_df, "proportion_below_df.rds")
 # in the paper
 
 results_plots = list()
+
+# strategy_name <- c("Qwen 2_topk (50)", "Qwen 2_CS ((0.6, 10))", "Qwen 2_beam (5)",
+#                    "Qwen 2_temp (0.9)", "Qwen 2_topp (0.95)")
+strategy_name <- c("a", "b", "c", "d", "e")
+i <- 1
 for (strategy in strategy_comparison) {
   # if(classifier == "classif.xgboost")
-  #   debugonce(plotting_permutationtest)
+  #   debugonce(plotting_permutationtest)s
   result_plot <- readRDS(paste0(strategy, "_result.rds"))
-  results_plots[[strategy]] = result_plot
+  results_plots[[strategy_name[i]]] = result_plot
+  i <- i + 1
 }
-plotting_permutationtest_openml(results_plots)
+plotting_permutationtest()
 
 
 
