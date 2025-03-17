@@ -14,13 +14,13 @@ library(gurobi) # solving LP
 library(readr)  # data preparation
 library(forcats) # data preparation
 library(ggplot2) # visualization
-library(reshape2) # visualization !!!!!
+library(reshape2) # visualization
 library(tidyverse) # data wrangling
 library(ggridges) # visualization
 library(latex2exp) # for gamma (and epsilon) symbols
 library(RColorBrewer) # color palettes
 library(rcartocolor) # color gradients
-library(ggthemes)# !!!!!!
+library(ggthemes)#
 library(readxl)
 
 source("R/constraints_r1_r2.R") # contains the functions compute_constraints...
@@ -32,20 +32,20 @@ source("R/test_two_items.R") # main function summarizing the computation
 # Select the performance measures to compare
 # Select comparison between what kind of strategies
 ################################################################################
-# one cardinal
-cardinal_1 <- "Q_Text"
-
-# two ordinal
-ordinal_1 <- "Evaluation_Julian"
-ordinal_2 <- "Evaluation_Christoph"
+# # one cardinal
+# cardinal_1 <- "BLEU"
+#
+# # two ordinal
+# ordinal_1 <- "Evaluation_A"
+# ordinal_2 <- "Evaluation_B"
 
 # comparison
-strategy_interest <- "Human_Human"
-strategy_comparison <- list("Qwen 2_topk (50)",
-                            "Qwen 2_CS (('0.6', '10'))",
-                            "Qwen 2_beam (5)",
-                            "Qwen 2_temp (0.9)",
-                            "Qwen 2_topp (0.95)")
+strategy_interest <- "Human"
+strategy_comparison <- list("Beam Search (beam width = 5)",
+                            "Contrastive Search (k = 10, alpha = 0.6)",
+                            "Sampling with Temperature (temperature = 0.9)",
+                            "Top-k Sampling (k = 50)",
+                            "Top-p Sampling (p = 0.95)" )
 
 
 
@@ -54,10 +54,12 @@ strategy_comparison <- list("Qwen 2_topk (50)",
 ################################################################################
 
 # Load the data set
-data_all <- read_excel("evaluations_christoph_julian.xlsx")
-data_all[["strategy"]] <- with(data_all, paste(Model, Method, sep = "_"))
+data_all <- read_excel("datasets/summarization_dataset.xlsx")
+data_all <- data_all[, c(4,5,6,10)]
+colnames(data_all) <- c( "strategy", "ordinal_1", "ordinal_2", "cardinal_1")
+
 data_prepared <- data_all %>%
-  select(cardinal_1, ordinal_1, ordinal_2, "strategy")
+  dplyr::select(c(cardinal_1, ordinal_1, ordinal_2, "strategy"))
 
 ################################################################################
 # Conducting the permutation test and plotting the results
@@ -79,9 +81,9 @@ for (strategy in strategy_comparison) {
   # ordinal_1, ordinal_2, numeric, count_group_a, count_group_b, count_all, ID
 
   # Step 1: Converting the variables of interest into numeric and order modes
-  data_inner[[cardinal_1]] <- as.numeric(as.character(data_inner[[cardinal_1]]))
-  data_inner[[ordinal_1]] <- as.ordered(as.character(data_inner[[ordinal_1]]))
-  data_inner[[ordinal_2]] <- as.ordered(as.character(data_inner[[ordinal_2]]))
+  data_inner[["cardinal_1"]] <- as.numeric(as.character(data_inner[["cardinal_1"]]))
+  data_inner[["ordinal_1"]] <- as.ordered(as.character(data_inner[["ordinal_1"]]))
+  data_inner[["ordinal_2"]] <- as.ordered(as.character(data_inner[["ordinal_2"]]))
 
 
   # Step 2: duplication handling
@@ -206,23 +208,21 @@ saveRDS(proportion_below_df, "proportion_below_df.rds")
 ################################################################################
 # Result and Plotting
 ################################################################################
-# plotting the test results (of the pairwise comparisons) as in figure 2, 3, and 4 (appendix)
-# in the paper
+# plotting the test results (of the pairwise comparisons) in the paper
 
 results_plots = list()
 
-# strategy_name <- c("Qwen 2_topk (50)", "Qwen 2_CS ((0.6, 10))", "Qwen 2_beam (5)",
-#                    "Qwen 2_temp (0.9)", "Qwen 2_topp (0.95)")
-strategy_name <- c("a", "b", "c", "d", "e")
+strategy_name <-  c("Qwen2_topk_50", "Qwen2_CS_0.6_10", "Qwen2_beam_5", "Qwen2_temp_0.9", "Qwen2_topp_0.95")
 i <- 1
 for (strategy in strategy_comparison) {
   # if(classifier == "classif.xgboost")
   #   debugonce(plotting_permutationtest)s
-  result_plot <- readRDS(paste0(strategy, "_result.rds"))
-  results_plots[[strategy_name[i]]] = result_plot
+  inner_result <- readRDS(paste0(strategy, "_result.rds"))
+  results_plots[[strategy_name[i]]] = inner_result
   i <- i + 1
 }
-plotting_permutationtest()
+
+plotting_permutationtest_wiki(results_plots)
 
 
 

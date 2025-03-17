@@ -10,43 +10,43 @@ library(latex2exp)
 library(RColorBrewer)
 library(ggthemes)
 
-plotting_permutationtest_res <- function(results_plots) {
-  
-  
+plotting_permutationtest_wiki <- function(results_plots) {
+
+
   # prepare data frames for ggplot
-  all_test_results = data.frame("Qwen 2_topk (50)" = results_plots$a$permutation_test[1,] %>% unlist(),
-                                "Qwen 2_CS ((0.6, 10))" = results_plots$b$permutation_test[1,] %>% unlist(),
-                                "Qwen 2_beam (5)" = results_plots$c$permutation_test[1,] %>% unlist(),
-                                "Qwen 2_temp (0.9)" = results_plots$d$permutation_test[1,] %>% unlist(),
-                                "Qwen 2_topp (0.95)" = results_plots$e$permutation_test[1,] %>% unlist())
+  all_test_results = data.frame("Qwen2_topk_50" = results_plots$Qwen2_topk_50$permutation_test[1,] %>% unlist(),
+                                "Qwen2_CS_0.6_10" = results_plots$Qwen2_CS_0.6_10$permutation_test[1,] %>% unlist(),
+                                "Qwen2_beam_5" = results_plots$Qwen2_beam_5$permutation_test[1,] %>% unlist(),
+                                "Qwen2_temp_0.9" = results_plots$Qwen2_temp_0.9$permutation_test[1,] %>% unlist(),
+                                "Qwen2_topp_0.95" = results_plots$Qwen2_topp_0.95$permutation_test[1,] %>% unlist())
   all_test_results = all_test_results %>% rev()
   d_observed = c(
-    results_plots$a$d_observed$result_eps_0,
-    results_plots$b$d_observed$result_eps_0,
-    results_plots$c$d_observed$result_eps_0,
-    results_plots$d$d_observed$result_eps_0,
-    results_plots$e$d_observed$result_eps_0
+    results_plots$Qwen2_topk_50$d_observed$result_eps_0,
+    results_plots$Qwen2_CS_0.6_10$d_observed$result_eps_0,
+    results_plots$Qwen2_beam_5$d_observed$result_eps_0,
+    results_plots$Qwen2_temp_0.9$d_observed$result_eps_0,
+    results_plots$Qwen2_topp_0.95$d_observed$result_eps_0
   )
   d_observed = d_observed %>% unlist()
-  names(d_observed) = c("Qwen 2_topk (50)", "Qwen 2_CS ((0.6, 10))", "Qwen 2_beam (5)", "Qwen 2_temp (0.9)", "Qwen 2_topp (0.95)")
-  
+  names(d_observed) = c("Qwen2_topk_50", "Qwen2_CS_0.6_10", "Qwen2_beam_5", "Qwen2_temp_0.9", "Qwen2_topp_0.95")
+
   # get critical values (0.05/5) (adapt manually to quantiles
   # from stat_density_ridges {ggridges}, see documentation in appendix of paper)
-  cv_2_topk_50 = quantile(all_test_results[,1], probs = 0.05/5) +0.0015
-  cv_2_cs_06_10 = quantile(all_test_results[,2], probs = 0.05/5)
-  cv_2_beam_5 = quantile(all_test_results[,3], probs = 0.05/5) -0.0043
-  cv_2_temp_09 = quantile(all_test_results[,4], probs = 0.05/5) +0.0045
-  cv_2_topp_095 = quantile(all_test_results[,5], probs = 0.05/5)
+  # cv_2_topk_50 = quantile(all_test_results[,1], probs = 0.05/5) +0.0015
+  # cv_2_cs_06_10 = quantile(all_test_results[,2], probs = 0.05/5)
+  # cv_2_beam_5 = quantile(all_test_results[,3], probs = 0.05/5) -0.0043
+  # cv_2_temp_09 = quantile(all_test_results[,4], probs = 0.05/5) +0.0045
+  # cv_2_topp_095 = quantile(all_test_results[,5], probs = 0.05/5)
   # cv_Multinom = quantile(all_test_results[,6], probs = 0.05/5) -0.002
-  
+
   # get critical values (0.05)
-  cv_2_topl_50_0.5 = quantile(all_test_results[,1], probs = 0.05) +0.0059
-  cv_2_cs_06_10_0.5 = quantile(all_test_results[,2], probs = 0.05) -0.005
+  cv_2_topl_50_0.5 = quantile(all_test_results[,1], probs = 0.05) # +0.0059
+  cv_2_cs_06_10_0.5 = quantile(all_test_results[,2], probs = 0.05) # -0.005
   cv_2_beam_5_0.5 = quantile(all_test_results[,3], probs = 0.05)
-  cv_2_temp_09_0.5 = quantile(all_test_results[,4], probs = 0.05) +0.0005
-  cv_2_topp_095_0.5 = quantile(all_test_results[,5], probs = 0.05) +0.0057
+  cv_2_temp_09_0.5 = quantile(all_test_results[,4], probs = 0.05) # +0.0005
+  cv_2_topp_095_0.5 = quantile(all_test_results[,5], probs = 0.05) # +0.0057
   # cv_Multinom_0.5 = quantile(all_test_results[,6], probs = 0.05) -0.006
-  
+
   ## theme for horizontal charts
   theme_flip <-
     theme(
@@ -69,20 +69,19 @@ plotting_permutationtest_res <- function(results_plots) {
   labels_segments = fct_rev(df$ind)
   labels =  c("Qwen 2_topk (50)", "Qwen 2_CS ((0.6, 10))", "Qwen 2_beam (5)", "Qwen 2_temp (0.9)", "Qwen 2_topp (0.95)")
   fill_rej_reg = 0.2
-  
+
   # visualize test statistics including observed ones (see Figure 2 in paper)
   figure_2 = ggplot(df, aes(x = values, y = fct_rev(ind), fill = factor(stat(quantile)))) +
-    xlim(c(-0.45,0.05)) +
+    xlim(c(-0.4,0.05)) +
     scale_fill_manual(
-      name = latex2exp::TeX("  Decision:   "), values = c("red4", "#FF0000A0", "lightsteelblue"),
-      labels = c(latex2exp::TeX("  Rejection for ${\\alpha} = \\frac{0.05}{6}$           "),
-                 latex2exp::TeX("  Rejection for ${\\alpha} = 0.05$            "),
-                 latex2exp::TeX("No Rejection"))
-    ) + 
+      name = latex2exp::TeX("  Decision:   "), values = c("red4", "lightsteelblue"), #  "#FF0000A0"
+      labels = c(latex2exp::TeX("  Rejection for ${\\alpha} = 0.05$            "),
+                 latex2exp::TeX("No Rejection")) #latex2exp::TeX("  Rejection for ${\\alpha} = \\frac{0.05}{6}$           "),
+    ) +
     stat_density_ridges(
       geom = "density_ridges_gradient",
       calc_ecdf = TRUE,
-      quantiles = c(0.05/6,0.05),
+      quantiles = c(0.05),
       quantile_fun = quantile,
       n = 512*2,
       jittered_points = TRUE,
@@ -92,51 +91,51 @@ plotting_permutationtest_res <- function(results_plots) {
     ) +
     theme(axis.title.x = element_text(margin = 20)) +
     theme(plot.title = element_text(hjust = 0.8)) +
-    scale_y_discrete( name = "SVM vs.                             ", labels = labels) +
+    scale_y_discrete( name = "Human vs.                             ", labels = labels) +
     coord_cartesian(clip = "off") +
     labs(title = legend_title) +
     theme_ridges(font_size = 18, grid = TRUE) +
     ggthemes::theme_economist_white(gray_bg = T) +
     theme(axis.title.x = element_blank()) +
     theme(legend.position = "bottom", legend.key.size = unit(1.2, 'cm'),
-          legend.box.spacing = unit(1.8, 'cm'), 
+          legend.box.spacing = unit(1.8, 'cm'),
           legend.text = element_text(size = 16),
           legend.title = element_text(size=21)) +
     guides(fill = guide_legend(override.aes = list(size = 14))) +
     theme(plot.background = element_rect(fill = 'white', colour = 'white')) +
-    theme(axis.text=element_text(size=13), 
-          axis.title=element_text(size=28), 
+    theme(axis.text=element_text(size=13),
+          axis.title=element_text(size=28),
           plot.title = element_text(size = 32, face = "bold")) +
     theme(axis.title.y = element_text(size = 20, hjust= 0.7, margin = margin(t = 20, r = 20, b = 0, l = 0))) +
     geom_segment(data = d_observed_geom, aes(x = d, xend = d, y = test, yend = test +0.8),
                  color = "black", inherit.aes = FALSE, lineend = "round", linejoin = "round", size = 1.4) +
-    annotate("rect", xmin=-0.45, xmax=cv_2_topk_50, ymin=1, ymax=1.8,alpha=fill_rej_reg, fill = "red4") +
-    annotate("rect", xmin=-0.45, xmax=cv_2_cs_06_10, ymin=2, ymax=2.8,alpha=fill_rej_reg, fill = "red4") +
-    annotate("rect", xmin=-0.45, xmax=cv_2_beam_5, ymin=3, ymax=3.8,alpha=fill_rej_reg, fill = "red4") +
-    annotate("rect", xmin=-0.45, xmax=cv_2_temp_09, ymin=4, ymax=4.8,alpha=fill_rej_reg, fill = "red4") +    
-    annotate("rect", xmin=-0.45, xmax=cv_2_topp_095, ymin=5, ymax=5.8,alpha=fill_rej_reg, fill = "red4") +
+    # annotate("rect", xmin=-0.45, xmax=cv_2_topk_50, ymin=1, ymax=1.8,alpha=fill_rej_reg, fill = "red4") +
+    # annotate("rect", xmin=-0.45, xmax=cv_2_cs_06_10, ymin=2, ymax=2.8,alpha=fill_rej_reg, fill = "red4") +
+    # annotate("rect", xmin=-0.45, xmax=cv_2_beam_5, ymin=3, ymax=3.8,alpha=fill_rej_reg, fill = "red4") +
+    # annotate("rect", xmin=-0.45, xmax=cv_2_temp_09, ymin=4, ymax=4.8,alpha=fill_rej_reg, fill = "red4") +
+    # annotate("rect", xmin=-0.45, xmax=cv_2_topp_095, ymin=5, ymax=5.8,alpha=fill_rej_reg, fill = "red4") +
     # annotate("rect", xmin=-0.45, xmax=cv_Multinom, ymin=6, ymax=6.8,alpha=fill_rej_reg, fill = "red4") +
-    annotate("rect", xmin=cv_2_topk_50, xmax=cv_2_topl_50_0.5, ymin=1, ymax=1.8,alpha=fill_rej_reg, fill = "#FF0000A0") +
-    annotate("rect", xmin=cv_2_cs_06_10, xmax=cv_2_cs_06_10_0.5, ymin=2, ymax=2.8,alpha=fill_rej_reg, fill = "#FF0000A0") +
-    annotate("rect", xmin=cv_2_beam_5, xmax=cv_2_beam_5_0.5, ymin=3, ymax=3.8,alpha=fill_rej_reg, fill = "#FF0000A0") +
-    annotate("rect", xmin=cv_2_temp_09, xmax=cv_2_temp_09_0.5, ymin=4, ymax=4.8,alpha=fill_rej_reg, fill = "#FF0000A0") +    
-    annotate("rect", xmin=cv_2_topp_095, xmax=cv_2_topp_095_0.5, ymin=5, ymax=5.8,alpha=fill_rej_reg, fill = "#FF0000A0") +
+    annotate("rect", xmin=-0.4, xmax=cv_2_topl_50_0.5, ymin=1, ymax=1.8,alpha=fill_rej_reg, fill = "#FF0000A0") +
+    annotate("rect", xmin=-0.4, xmax=cv_2_cs_06_10_0.5, ymin=2, ymax=2.8,alpha=fill_rej_reg, fill = "#FF0000A0") +
+    annotate("rect", xmin=-0.4, xmax=cv_2_beam_5_0.5, ymin=3, ymax=3.8,alpha=fill_rej_reg, fill = "#FF0000A0") +
+    annotate("rect", xmin=-0.4, xmax=cv_2_temp_09_0.5, ymin=4, ymax=4.8,alpha=fill_rej_reg, fill = "#FF0000A0") +
+    annotate("rect", xmin=-0.4, xmax=cv_2_topp_095_0.5, ymin=5, ymax=5.8,alpha=fill_rej_reg, fill = "#FF0000A0") +
     # annotate("rect", xmin=cv_Multinom, xmax=cv_Multinom_0.5, ymin=6, ymax=6.8,alpha=fill_rej_reg, fill = "#FF0000A0") +
     annotate("rect", xmin=cv_2_topl_50_0.5, xmax=0.05, ymin=1, ymax=1.8,alpha=0.2, fill = "steelblue") +
     annotate("rect", xmin=cv_2_cs_06_10_0.5, xmax=0.05, ymin=2, ymax=2.8,alpha=fill_rej_reg, fill = "steelblue") +
     annotate("rect", xmin=cv_2_beam_5_0.5, xmax=0.05, ymin=3, ymax=3.8,alpha=fill_rej_reg, fill = "steelblue") +
-    annotate("rect", xmin=cv_2_temp_09_0.5, xmax=0.05, ymin=4, ymax=4.8,alpha=fill_rej_reg, fill = "steelblue") +    
+    annotate("rect", xmin=cv_2_temp_09_0.5, xmax=0.05, ymin=4, ymax=4.8,alpha=fill_rej_reg, fill = "steelblue") +
     annotate("rect", xmin=cv_2_topp_095_0.5, xmax=0.05, ymin=5, ymax=5.8,alpha=fill_rej_reg, fill = "steelblue") +
-    # annotate("rect", xmin=cv_Multinom_0.5, xmax=0.05, ymin=6, ymax=6.8,alpha=fill_rej_reg, fill = "steelblue") 
-  
-  
-  
-  pdf(file= paste0("fig_2.pdf"), width = 13, height = 8)
+    # annotate("rect", xmin=cv_Multinom_0.5, xmax=0.05, ymin=6, ymax=6.8,alpha=fill_rej_reg, fill = "steelblue")
+
+
+
+  pdf(file= paste0("results_wikitext_wikinews/fig_2.pdf"), width = 13, height = 8)
   print(figure_2)
   dev.off()
-  
+
   ### BIS HIER
-  
+
   # function to compute shares of rejected resampled test statistics
   reject_share <- function(gamma, d_res, d_obs){
     d_obs <- rep(d_obs, length(d_res))
@@ -153,78 +152,79 @@ plotting_permutationtest_res <- function(results_plots) {
   # df_rej_multinom = data.frame("gamma" = gamma_grid %>% unlist,
   #                              "Rejection share" = rej_shares_reg0,
   #                              "test" = "svm vs. multinom")
-  
+
   rejection_shares = lapply(gamma_grid,
                             FUN = reject_share,
-                            d_res = all_test_results$GLMnet,
-                            d_obs = d_observed["GLMnet"] )
+                            d_res = all_test_results$Qwen2_topk_50,
+                            d_obs = d_observed["Qwen2_topk_50"] )
   rej_shares_reg0 =  rejection_shares %>% unlist()
-  df_rej_glmnet = data.frame("gamma" = gamma_grid %>% unlist,
+  df_rej_topk50 = data.frame("gamma" = gamma_grid %>% unlist,
                              "Rejection share" = rej_shares_reg0,
-                             "test" = "svm vs. GLMNet")
-  
+                             "test" = "Human vs. Qwen 2_topk (50)")
+
   rejection_shares = lapply(gamma_grid,
                             FUN = reject_share,
-                            d_res = all_test_results$ranger,
-                            d_obs = d_observed["ranger"] )
+                            d_res = all_test_results$Qwen2_CS_0.6_10,
+                            d_obs = d_observed["Qwen2_CS_0.6_10"] )
   rej_shares_reg0 =  rejection_shares %>% unlist()
-  df_rej_ranger = data.frame("gamma" = gamma_grid %>% unlist,
+  df_rej_CS0610 = data.frame("gamma" = gamma_grid %>% unlist,
                              "Rejection share" = rej_shares_reg0,
-                             "test" = "svm vs. RF")
-  
+                             "test" = "Human vs. Qwen 2_CS ((0.6, 10))")
+
   rejection_shares = lapply(gamma_grid,
                             FUN = reject_share,
-                            d_res = all_test_results$xgboost,
-                            d_obs = d_observed["xgboost"] )
+                            d_res = all_test_results$Qwen2_beam_5,
+                            d_obs = d_observed["Qwen2_beam_5"] )
   rej_shares_reg0 =  rejection_shares %>% unlist()
-  df_rej_xgboost = data.frame("gamma" = gamma_grid %>% unlist,
+  df_rej_beam5 = data.frame("gamma" = gamma_grid %>% unlist,
                               "Rejection share" = rej_shares_reg0,
-                              "test" = "svm vs. xGBoost")
-  
+                              "test" = "Human vs. Qwen 2_beam (5)")
+
   rejection_shares = lapply(gamma_grid,
                             FUN = reject_share,
-                            d_res = all_test_results$knn,
-                            d_obs = d_observed["knn"] )
+                            d_res = all_test_results$Qwen2_temp_0.9,
+                            d_obs = d_observed["Qwen2_temp_0.9"] )
   rej_shares_reg0 =  rejection_shares %>% unlist()
-  df_rej_knn = data.frame("gamma" = gamma_grid %>% unlist,
+  df_rej_temp09 = data.frame("gamma" = gamma_grid %>% unlist,
                           "Rejection share" = rej_shares_reg0,
-                          "test" = "svm vs. kNN")
-  
+                          "test" = "Human vs. Qwen 2_temp (0.9)")
+
   rejection_shares = lapply(gamma_grid,
                             FUN = reject_share,
-                            d_res = all_test_results$rpart,
-                            d_obs = d_observed["rpart"] )
+                            d_res = all_test_results$Qwen2_topp_0.95,
+                            d_obs = d_observed["Qwen2_topp_0.95"] )
   rej_shares_reg0 =  rejection_shares %>% unlist()
-  df_rej_rpart = data.frame("gamma" = gamma_grid %>% unlist,
+  df_rej_topp095 = data.frame("gamma" = gamma_grid %>% unlist,
                             "Rejection share" = rej_shares_reg0,
-                            "test" = "svm vs. CART")
-  
-  
-  
+                            "test" = "Human vs. Qwen 2_topp (0.95)")
+
+
+
   ################################################################################
   # Visualization of rejection shares
   ################################################################################
-  
+
   # only visualize unregularized test statistics, see footnote 7 in paper
-  df_rej_all = rbind(df_rej_glmnet, df_rej_knn, df_rej_ranger,
-                     df_rej_xgboost)
+  df_rej_all = rbind(df_rej_topk50, df_rej_CS0610, df_rej_beam5, df_rej_temp09,
+                     df_rej_topp095)
+
   par(mar=c(3,4,2,2))
   # to do: discrete palette
-  pal = c("#DB6D00","#490092", "#56B4E9", "#009E73")
+  pal = c("#DB6D00","#490092", "#56B4E9", "#009E73",  "#CC79A7")
   # compute p-values
   df_rej_all$Rejection_share = 1- df_rej_all$Rejection.share/nrow(all_test_results)
   # compute number of contaminations
-  number_resamples = length(all_test_results$Multinom)
-  number_datasets = 80
+  number_resamples = length(all_test_results$Qwen2_topp_0.95)
+  number_datasets = 30 # TODO !!!!!
   df_rej_all$k = df_rej_all$gamma * number_datasets
-  #axis limits 
-  x_limits = c(0,15)
+  #axis limits
+  x_limits = c(0,5)
   y_limits = c(0,0.35)
-  
+
   # Eventually make plot of p-values (1- rejection shares) as function of contamination parameter gamma
   # (corresponds to figure 3 in paper)
   figure_3 = ggplot(data = df_rej_all) +
-    geom_line(data = df_rej_all, aes(x = k, y = Rejection_share, colour = test), 
+    geom_line(data = df_rej_all, aes(x = k, y = Rejection_share, colour = test),
               size = 1.7, linejoin = "round") +
     labs(color = "Test") +
     ylab("   p-values   ") +
@@ -247,28 +247,31 @@ plotting_permutationtest_res <- function(results_plots) {
     theme(plot.background = element_rect(fill = 'white', colour = 'white')) +
     ylim(y_limits) +
     xlim(x_limits) +
-    geom_hline(yintercept=0.05/6, linetype="dashed", color = "red4", size = 2) +
+    # geom_hline(yintercept=0.05/6, linetype="dashed", color = "red4", size = 2) +
     geom_hline(yintercept=0.05, linetype="dashed", color = "#FF0000A0", size = 2) +
     scale_color_manual(values=pal) +
     theme(axis.text.x = element_text(angle = 0, vjust = 0.5, hjust=1)) +
     theme(axis.text.y = element_text(angle = 0, vjust = 0.5, hjust=1)) +
     theme(axis.title.x = element_text(margin = margin(t = 14, r = 20, b = 0, l = 0))) +
     theme(axis.title.y = element_text(margin = margin(t = 14, r = 20, b = 0, l = 0))) #+
-  labs(title = latex2exp::TeX("                   Effect of Contamination")) 
-  
-  
-  pdf(file= paste0("fig_3.pdf"), width = 12, height = 9)
+  labs(title = latex2exp::TeX("                   Effect of Contamination"))
+
+
+  pdf(file= paste0("results_wikitext_wikinews/fig_3.pdf"), width = 12, height = 9)
   print(figure_3)
   dev.off()
-  
+
+
+
+
   df_cdf = df
-  levels(df_cdf$ind) = c("LR","GLMnet","RF","xGBoost","kNN","CART")
-  
+  levels(df_cdf$ind) = rev(c("Qwen 2_topk (50)", "Qwen 2_CS ((0.6, 10))", "Qwen 2_beam (5)", "Qwen 2_temp (0.9)", "Qwen 2_topp (0.95)"))
+
   ## visualize CDF
   figure_4 = ggplot(df_cdf, aes(values, colour = ind)) +
     stat_ecdf(size=1.22) +
     theme(plot.title = element_text(hjust = 1.8, margin = margin(t = 0, r = 20, b = 0, l = 0))) +
-    ggtitle( "CDFs of resampled test statistics (OpenML)") +
+    ggtitle( "CDFs of resampled test statistics") +
     ggtitle( "") +
     theme(axis.title.x = element_blank()) +
     xlim(c(-0.15,0))+
@@ -276,21 +279,21 @@ plotting_permutationtest_res <- function(results_plots) {
     theme(axis.text=element_text(size=13), axis.title=element_text(size=28), plot.title = element_text(size = 20, face = "bold")) +
     theme(axis.title.y = element_text(size = 20)) +
     ggthemes::theme_economist_white(gray_bg = T) +
-    labs(color = "Test: SVM vs.") +
+    labs(color = "Test: Human vs.") +
     theme(axis.title.x = element_blank(), axis.title.y = element_blank()) +
     theme(legend.position = "bottom", legend.key.size = unit(1.2, 'cm'),
-          legend.box.spacing = unit(1.8, 'cm'), 
+          legend.box.spacing = unit(1.8, 'cm'),
           legend.text = element_text(size = 16),
           legend.title = element_text(size=21),
           plot.title = element_text(size = 28, face = "bold",hjust = 0.1, vjust = 2, margin = margin(t = 0, r = 20, b = 0, l = 10)))
-  
-  
-  
-  pdf(file= paste0("fig_4.pdf"), width = 12, height = 9)
+
+
+
+  pdf(file= paste0("results_wikitext_wikinews/fig_4.pdf"), width = 12, height = 9)
   print(figure_4)
   dev.off()
-  
-  
+
+
 }
 
 
