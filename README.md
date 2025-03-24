@@ -1,8 +1,7 @@
 # Statistical Multicriteria Evaluation of LLM-Generated Text
 
 ## Introduction
-This anonymous repository contains R-code and data sets corresponding to the "Statistical Multicriteria Evaluation of LLM-Generated Text" article. We apply the introduced tests on three examples: BBOB suite, DeepOPS suite, and a benchmarking suite on multi-objective evolutionary algorithms.
-
+This anonymous repository contains R-code and data sets corresponding to the "Statistical Multicriteria Evaluation of LLM-Generated Text" article. We apply the introduced tests on a selection of WikiText and WikiNews prompts. 
 The structure of the repository is as follows:
 - File _setup_session.R installs all needed R-packages.
 - File evaluation_wikitext_wikinews.R evaluates a slection of the WikiText and WikiNews prompts, see TODO.
