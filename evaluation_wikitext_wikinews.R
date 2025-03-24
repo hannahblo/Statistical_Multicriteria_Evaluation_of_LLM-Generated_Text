@@ -82,9 +82,9 @@ for (strategy in strategy_comparison) {
   # ordinal_1, ordinal_2, numeric, count_group_a, count_group_b, count_all, ID
 
   # Step 1: Converting the variables of interest into numeric and order modes
-  data_inner[[cardinal_1]] <- as.numeric(as.character(data_inner[[cardinal_1]]))
-  data_inner[[ordinal_1]] <- as.ordered(as.character(data_inner[[ordinal_1]]))
-  data_inner[[ordinal_2]] <- as.ordered(as.character(data_inner[[ordinal_2]]))
+  data_inner[["cardinal_1"]] <- as.numeric(as.character(data_inner[["cardinal_1"]]))
+  data_inner[["ordinal_1"]] <- as.ordered(as.character(data_inner[["ordinal_1"]]))
+  data_inner[["ordinal_2"]] <- as.ordered(as.character(data_inner[["ordinal_2"]]))
 
 
   # Step 2: duplication handling
@@ -232,162 +232,161 @@ plotting_permutationtest_wiki(results_plots)
 
 
 
-#
-#
-# ################################################################################
-# # Constructing the graph representing all pairwise comparisons at once
-# # therfore we have to compute the reverse
-# # (switching classifier and classifier_of_interest
-# # position) observed minimal difference
-# ################################################################################
-# classifiers_all <- list( "classif.svm",  "classif.multinom", "classif.ranger", "classif.xgboost", "classif.glmnet", "classif.kknn", "classif.rpart")
-#
-# for (k in seq(1, length(classifiers_all))) {
-#   for (m in seq(1, length(classifiers_all))[-k]) {
-#
-#     classifier <- classifiers_all[m]
-#     classifier_of_interest <- classifiers_all[k]
-#
-#
-#     data_openml_selected <- data_openml_filter
-#
-#     # Now we select two classifiers and compare them
-#     # here we choose classif.rpart and classif.svm
-#     data_openml_selected <- data_openml_selected[data_openml_selected$learner.name %in%
-#                                                    c(classifier_of_interest,
-#                                                      classifier), ]
-#
-#
-#     # now, we need to convert the data_final_selected into a dataframe with columns:
-#     # ordinal_1, ordinal_2, numeric, count_group_a, count_group_b, count_all, ID
-#
-#     # Step 1: Converting the variables of interest into numeric and order modes
-#     data_openml_selected[[cardinal_1]] <- as.numeric(as.character(
-#       data_openml_selected[[cardinal_1]]))
-#
-#     data_openml_selected[[ordinal_1]] <- as.ordered(as.character(
-#       data_openml_selected[[ordinal_1]]))
-#
-#     data_openml_selected[[ordinal_2]] <- as.ordered(as.character(
-#       data_openml_selected[[ordinal_2]]))
-#
-#
-#     # Step 2: duplication handling
-#     data_count <- data_openml_selected %>% group_by_all() %>% count()
-#
-#
-#     data_group_1 <- data_count[which(data_count$learner.name == classifier),
-#                                    c(2, 3, 4, 5)]
-#     data_group_1 <- matrix(as.numeric(as.matrix(data_group_1)), ncol = 4)
-#     colnames(data_group_1) <-  c("numeric", "ordinal_1", "ordinal_2", "count_group_a")
-#
-#
-#     data_group_2 <- data_count[which(data_count$learner.name == classifier_of_interest),
-#                                    c(2, 3, 4, 5)]
-#     data_group_2 <- matrix(as.numeric(as.matrix(data_group_2)), ncol = 4)
-#     colnames(data_group_2) <-  c("numeric", "ordinal_1", "ordinal_2", "count_group_b")
-#
-#     dat_final <- merge(x = data_group_1, y = data_group_2,
-#                        by = c("ordinal_1", "ordinal_2", "numeric"),
-#                        all.x = TRUE, all.y = TRUE)
-#     dat_final[is.na(dat_final)] <- 0
-#     dat_final$count_all <- dat_final$count_group_a + dat_final$count_group_b
-#     dat_final$ID <- seq(1:dim(dat_final)[1])
-#
-#
-#     # View(dat_final)
-#     # dim(dat_final)
-#     # min(dat_final$numeric)
-#     # max(dat_final$numeric)
-#
-#     index_max <- which(dat_final$numeric == max(dat_final$numeric))
-#     # dat_final[index_max, ]
-#     index_min <- which(dat_final$numeric == min(dat_final$numeric))
-#     # dat_final[index_min, ]
-#
-#     # Add minimal and maximal at the bottom of the matrix
-#
-#     # ATTENTION: It is very important for the following analysis that the
-#     # the input at the second largest row is the minimal value and the largest row
-#     # represents the maximal value
-#     dat_final[dim(dat_final)[1] + 1, ] <- c(min(dat_final$ordinal_1),
-#                                             min(dat_final$ordinal_2),
-#                                             dat_final[index_min[1], 3],
-#                                             0, 0, 0,
-#                                             max(dat_final$ID) + 1)
-#     dat_final[dim(dat_final)[1] + 1, ] <- c(max(dat_final$ordinal_1),
-#                                             max(dat_final$ordinal_2),
-#                                             dat_final[index_max[1], 3],
-#                                             0, 0, 0,
-#                                             max(dat_final$ID) + 1)
-#
-#
-#     # Note that we can have now the problem that these two added elements are not
-#     # allowed to occur already in the data, thus we check this and eventually delete
-#     # this row
-#     for (i in seq(1, length(index_min))) {
-#       if (all((dat_final[dim(dat_final)[1] - 1, ] == dat_final[index_min[i], ])[c(1,2,3)])) {
-#         dat_final[dim(dat_final)[1] - 1, ] <- dat_final[index_min[i], ]
-#         dat_final <- dat_final[-c(index_min[i]), ]
-#         dat_final$ID <- seq(1:dim(dat_final)[1])
-#
-#         # We have to update index_max as now the data frame changed
-#         # note that we want to compare to the last row and therefore we have
-#         # to delete this one in index_max
-#         index_max <- which(dat_final$numeric == max(dat_final$numeric))
-#         index_max <- index_max[-length(index_max)]
-#       }
-#     }
-#     for (i in seq(1, length(index_max))) {
-#       if (all((dat_final[dim(dat_final)[1], ] == dat_final[index_max[i], ])[c(1,2,3)])) {
-#         dat_final[dim(dat_final)[1], ] <- dat_final[c(index_max[i]), ]
-#         dat_final <- dat_final[-c(index_max[i]), ]
-#         dat_final$ID <- seq(1:dim(dat_final)[1])
-#       }
-#     }
-#
-#
-#     dat_set <- dat_final
-#     start_time <- Sys.time()
-#     result_inner <- test_two_items(dat_set, iteration_number = 1)
-#
-#     total_time <- Sys.time() - start_time
-#
-#     saveRDS(result_inner, paste0(classifier, "-", classifier_of_interest, "_result_all.rds"))
-#     saveRDS(total_time, paste0(classifier, "-", classifier_of_interest, "_computation_time_all.rds"))
-#   }
-# }
-#
-#
-#
-# df_eps_0 <- as.data.frame(matrix(rep(NA, length(classifiers_all) * length(classifiers_all)),
-#                                  nrow = length(classifiers_all)))
-# colnames(df_eps_0) <- rownames(df_eps_0) <- classifiers_all
-#
-# for (k in seq(1, length(classifiers_all))) {
-#   for (m in seq(1, length(classifiers_all))[-k]) {
-#     classifier <- classifiers_all[k]
-#     classifier_of_interest <- classifiers_all[m]
-#
-#     result_inner <- readRDS(paste0(classifier, "-", classifier_of_interest, "_result_all.rds"))
-#     df_eps_0[unlist(classifier), unlist(classifier_of_interest)] <- result_inner$d_observed$result_eps_0
-#
-#   }
-# }
-#
-# # df_eps_p explanation:
-# # an entry at with row x (correpsonding to algorithm x) and column y (corresponding to algorithm y)
-# # gives us an objectiv where algorithm x is included with minus in objective
-# # and algorihtm y is included with plus in objectiv
-# # all in all row gives - ; and column gives +
-# # With this we get that here the first row corresponds to the already computed
-# # comparisons needed for evaluating the test
-#
-#
-#
-# # The Hasse graph of the empirical GSD relation for the OpenML datasets was created
-# # by first computing the value d_{80}(C,C') for all distinct pairs (C,C')  from the
-# # set {SVM, RF, CART, LR, GLMNet, xGBoost, kNN } and then drawing a top-down edge
-# # from C to C', whenever d_{80}(C,C') >= 0. The resulting figure was created manually.
-#
-#
+
+
+################################################################################
+# Constructing the graph representing all pairwise comparisons at once
+# therfore we have to compute the reverse
+# (switching classifier and classifier_of_interest
+# position) observed minimal difference
+################################################################################
+strategy_all <- list("Human_Human",
+                        "Qwen 2_topk (50)",
+                        "Qwen 2_CS (('0.6', '10'))",
+                        "Qwen 2_beam (5)",
+                        "Qwen 2_temp (0.9)",
+                        "Qwen 2_topp (0.95)")
+
+for (k in seq(1, length(strategy_all))) {
+  for (m in seq(1, length(strategy_all))[-k]) {
+
+    strategy <- strategy_all[m]
+    strategy_of_interest <- strategy_all[k]
+
+
+    data_inner <- data_prepared
+
+    # Now we select two classifiers and compare them
+    # here we choose classif.rpart and classif.svm
+    data_inner <- data_inner[data_inner$strategy %in%
+                               c(strategy_interest, strategy), ]
+
+
+    # now, we need to convert the data_final_selected into a dataframe with columns:
+    # ordinal_1, ordinal_2, numeric, count_group_a, count_group_b, count_all, ID
+
+    # Step 1: Converting the variables of interest into numeric and order modes
+    data_inner[["cardinal_1"]] <- as.numeric(as.character(data_inner[["cardinal_1"]]))
+    data_inner[["ordinal_1"]] <- as.ordered(as.character(data_inner[["ordinal_1"]]))
+    data_inner[["ordinal_2"]] <- as.ordered(as.character(data_inner[["ordinal_2"]]))
+
+
+    # Step 2: duplication handling
+    data_count <- data_inner %>% group_by_all() %>% count()
+
+
+    data_group_1 <- data_count[which(data_count$strategy == strategy),
+                                   c(1, 2, 3, 5)]
+    data_group_1 <- matrix(as.numeric(as.matrix(data_group_1)), ncol = 4)
+    colnames(data_group_1) <-  c("numeric", "ordinal_1", "ordinal_2", "count_group_a")
+
+
+    data_group_2 <- data_count[which(data_count$strategy == strategy_of_interest),
+                                   c(1, 2, 3, 5)]
+    data_group_2 <- matrix(as.numeric(as.matrix(data_group_2)), ncol = 4)
+    colnames(data_group_2) <-  c("numeric", "ordinal_1", "ordinal_2", "count_group_b")
+
+    dat_final <- merge(x = data_group_1, y = data_group_2,
+                       by = c("ordinal_1", "ordinal_2", "numeric"),
+                       all.x = TRUE, all.y = TRUE)
+    dat_final[is.na(dat_final)] <- 0
+    dat_final$count_all <- dat_final$count_group_a + dat_final$count_group_b
+    dat_final$ID <- seq(1:dim(dat_final)[1])
+
+
+    # View(dat_final)
+    # dim(dat_final)
+    # min(dat_final$numeric)
+    # max(dat_final$numeric)
+
+    index_max <- which(dat_final$numeric == max(dat_final$numeric))
+    # dat_final[index_max, ]
+    index_min <- which(dat_final$numeric == min(dat_final$numeric))
+    # dat_final[index_min, ]
+
+    # Add minimal and maximal at the bottom of the matrix
+
+    # ATTENTION: It is very important for the following analysis that the
+    # the input at the second largest row is the minimal value and the largest row
+    # represents the maximal value
+    dat_final[dim(dat_final)[1] + 1, ] <- c(min(dat_final$ordinal_1),
+                                            min(dat_final$ordinal_2),
+                                            dat_final[index_min[1], 3],
+                                            0, 0, 0,
+                                            max(dat_final$ID) + 1)
+    dat_final[dim(dat_final)[1] + 1, ] <- c(max(dat_final$ordinal_1),
+                                            max(dat_final$ordinal_2),
+                                            dat_final[index_max[1], 3],
+                                            0, 0, 0,
+                                            max(dat_final$ID) + 1)
+
+
+    # Note that we can have now the problem that these two added elements are not
+    # allowed to occur already in the data, thus we check this and eventually delete
+    # this row
+    for (i in seq(1, length(index_min))) {
+      if (all((dat_final[dim(dat_final)[1] - 1, ] == dat_final[index_min[i], ])[c(1,2,3)])) {
+        dat_final[dim(dat_final)[1] - 1, ] <- dat_final[index_min[i], ]
+        dat_final <- dat_final[-c(index_min[i]), ]
+        dat_final$ID <- seq(1:dim(dat_final)[1])
+
+        # We have to update index_max as now the data frame changed
+        # note that we want to compare to the last row and therefore we have
+        # to delete this one in index_max
+        index_max <- which(dat_final$numeric == max(dat_final$numeric))
+        index_max <- index_max[-length(index_max)]
+      }
+    }
+    for (i in seq(1, length(index_max))) {
+      if (all((dat_final[dim(dat_final)[1], ] == dat_final[index_max[i], ])[c(1,2,3)])) {
+        dat_final[dim(dat_final)[1], ] <- dat_final[c(index_max[i]), ]
+        dat_final <- dat_final[-c(index_max[i]), ]
+        dat_final$ID <- seq(1:dim(dat_final)[1])
+      }
+    }
+
+
+    dat_set <- dat_final
+    start_time <- Sys.time()
+    result_inner <- test_two_items(dat_set, iteration_number = 1)
+
+    total_time <- Sys.time() - start_time
+
+    saveRDS(result_inner, paste0(strategy, "-", strategy_of_interest, "_result_all.rds"))
+    saveRDS(total_time, paste0(strategy, "-", strategy_of_interest, "_computation_time_all.rds"))
+  }
+}
+
+
+
+df_eps_0 <- as.data.frame(matrix(rep(NA, length(strategy_all) * length(strategy_all)),
+                                 nrow = length(strategy_all)))
+colnames(df_eps_0) <- rownames(df_eps_0) <- strategy_all
+
+for (k in seq(1, length(strategy_all))) {
+  for (m in seq(1, length(strategy_all))[-k]) {
+    strategy <- strategy_all[k]
+    strategy_of_interest <- strategy_all[m]
+
+    result_inner <- readRDS(paste0(strategy, "-", strategy_of_interest, "_result_all.rds"))
+    df_eps_0[unlist(strategy), unlist(strategy_of_interest)] <- result_inner$d_observed$result_eps_0
+
+  }
+}
+
+# df_eps_p explanation:
+# an entry at with row x (correpsonding to algorithm x) and column y (corresponding to algorithm y)
+# gives us an objectiv where algorithm x is included with minus in objective
+# and algorihtm y is included with plus in objectiv
+# all in all row gives - ; and column gives +
+# With this we get that here the first row corresponds to the already computed
+# comparisons needed for evaluating the test
+
+
+
+# The Hasse graph of the empirical GSD relation for the OpenML datasets was created
+# by first computing the value d_{80}(C,C') for all distinct pairs (C,C')  from the
+# set {SVM, RF, CART, LR, GLMNet, xGBoost, kNN } and then drawing a top-down edge
+# from C to C', whenever d_{80}(C,C') >= 0. The resulting figure was created manually.
+
+
