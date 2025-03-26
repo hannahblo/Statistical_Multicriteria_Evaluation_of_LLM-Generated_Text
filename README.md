@@ -11,11 +11,20 @@ The structure of the repository is as follows:
 
 
 ## Setup
-First, install all necessary R packages by downloading and sourcing the file _setup_session.R
+First, please install all necessary R-packages (can be found in _setup_session.R):
+- For the computation of the linear programs, we used the R interface of gurobi optimizer, see [here](https://www.gurobi.com/) (accessed: 26.03.2025). This is a commercial
+solver that offers a free academic licenses which can be found [here](https://www.gurobi.com/features/academic-named-user-license/) (accessed: 26.03.2025). To install this package, please follow the instructions there. A documentation can be found [here](https://www.gurobi.com/wp-content/plugins/hd_documentations/documentation/9.0/refman.pdf) (page 643ff) (accessed: 26.03.2025).
+- Afterwards, please install all dependencies by sourcing the file _setup_session.R and source the files 
 
 Second, download the evaluation_wikitext_wikinews.R file and the two folders datasets and R.
   
 Finally, run evaluation_wikitext_wikinews.R (approximate 2 days). The automatically generated files are stored in the same folder as evaluation_wikitext_wikinews.R is stored.
+
+
+## Further computation details
+The code is based on Jansen et al. (2023) and Jansen et al. (2024). For further details on the computation, see, e.g., Jansen et al. (2023) Section 8.1.
+
+The worst case complexity of the code ist $\mathcal(O)(n)$. However, this code uses that this worst case scenario does not often occur in real-world analysis and drastically reduces the computation time in those cases. 
 
 ## Explanation of all the produced plots
 Running the code results in some automatically generated rds/pdf files.
@@ -30,5 +39,7 @@ The resulting files are as follows:
 - fig_2.pdf and fig_3.pdf are the plots from Figure~2 in the graphik
 
 ## References:
+- Christoph Jansen, Georg Schollmeyer, Hannah Blocher, Julian Rodemann, Thomas Augustin. Robust statistical comparison of random variables with locally varying scale of measurement. Proceedings of the Thirty-Ninth Conference on Uncertainty in Artificial Intelligence, PMLR 216:941-952, 2023.
+- Christoph Jansen, Georg Schollmeyer, Julian Rodemann, Hannah Blocher, Thomas Augustin. Statistical Multicriteria Benchmarking via the GSD-Front. Advances in Neural Information Processing Systems 37 (NeurIPS 2024), Openreview, 2024
 - Xiang Lisa Li, Ari Holtzman, Daniel Fried, Percy Liang, Jason Eisner, Tatsunori Hashimoto, Luke Zettlemoyer, and Mike Lewis. Contrastive decoding: Open-ended text generation as optimization, 2023.
 - Stephen Merity, Caiming Xiong, James Bradbury, and Richard Socher. Pointer sentinel mixture models, 2016.
