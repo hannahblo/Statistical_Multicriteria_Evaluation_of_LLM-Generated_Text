@@ -22,9 +22,11 @@ Finally, run evaluation_wikitext_wikinews.R (approximate 3 days). The automatica
 
 
 ## Further computation details
-The code is based on Jansen et al. (2023) and Jansen et al. (2024). For further details on the computation, see, e.g., Jansen et al. (2023) Section 8.1.
+This code is designed to evaluate the null hypothesis described in the corresponding article. The set of algorithms or decoding strategies to be compared can be arbitrarily large, though computation time increases accordingly. The evaluation requires one cardinal and two ordinal quality metrics.  
 
-The worst case complexity of the code ist $\mathcal{O}(n)$. However, this code uses that this worst case scenario does not often occur in real-world analysis and drastically reduces the computation time in those cases. 
+The implementation is based on Jansen et al. (2023) and Jansen et al. (2024). For further details on the computational process, see, for example, Section 8.1 of Jansen et al. (2023).  
+
+The worst-case complexity of the code is $\mathcal{O}(n)$. However, in practical applications, the worst-case scenario occurs infrequently. The code takes advantage of this fact to reduce computation time in typical real-world analyses.  
 
 ## Explanation of all the produced plots
 Running the code results in some automatically generated rds/pdf files.
