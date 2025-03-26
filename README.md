@@ -18,13 +18,13 @@ solver that offers a free academic licenses which can be found [here](https://ww
 
 Second, download the evaluation_wikitext_wikinews.R file and the two folders datasets and R.
   
-Finally, run evaluation_wikitext_wikinews.R (approximate 2 days). The automatically generated files are stored in the same folder as evaluation_wikitext_wikinews.R is stored.
+Finally, run evaluation_wikitext_wikinews.R (approximate 3 days). The automatically generated files are stored in the same folder as evaluation_wikitext_wikinews.R is stored.
 
 
 ## Further computation details
 The code is based on Jansen et al. (2023) and Jansen et al. (2024). For further details on the computation, see, e.g., Jansen et al. (2023) Section 8.1.
 
-The worst case complexity of the code ist $\mathcal(O)(n)$. However, this code uses that this worst case scenario does not often occur in real-world analysis and drastically reduces the computation time in those cases. 
+The worst case complexity of the code ist $\mathcal{O}(n)$. However, this code uses that this worst case scenario does not often occur in real-world analysis and drastically reduces the computation time in those cases. 
 
 ## Explanation of all the produced plots
 Running the code results in some automatically generated rds/pdf files.
